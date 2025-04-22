@@ -1,7 +1,11 @@
+import os
+import psycopg2
+
+from dotenv import load_dotenv
 from typing import List
+import uvicorn
 
 from fastapi import Depends, FastAPI
-import psycopg2
 from sqlalchemy.orm import Session
 
 from .schema_db import SessionLocal, Booking, Facility, Member
@@ -11,16 +15,17 @@ from .models import BookingGet, UserGet, FacilityGet
 app = FastAPI()
 
 
-def get_db():
-    # with psycopg2.connect(
-    #     user='test',
-    #     password='pheiph0',
-    #     host='postgres.lab.test',
-    #     port=6432,
-    #     database='start_ml'
-    # ) as conn:
-    #     return conn
+def get_db_postgresql():
+    with psycopg2.connect(
+        user=os.environ['POSTGRES_USER'],
+        password=os.environ['POSTGRES_PASSWORD'],
+        host=os.environ['POSTGRES_HOST'],
+        port=os.environ['POSTGRES_PORT'],
+        database=os.environ['POSTGRES_DATABASE']
+    ) as conn:
+        return conn
 
+def get_db():
     with SessionLocal() as db:
         return db
 
@@ -44,3 +49,8 @@ def show_bookings(limit: int = 10, db: Session = Depends(get_db)):
 def show_bookings(limit: int = 10, db: Session = Depends(get_db)):
     for el in db.query(Booking).limit(limit).all():
         print(f'{el.member_rl.surname}')
+
+
+if __name__ == "__main__":
+    load_dotenv()
+    uvicorn.run(app)
