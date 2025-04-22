@@ -1,6 +1,7 @@
 from typing import List
 
 from fastapi import Depends, FastAPI
+import psycopg2
 from sqlalchemy.orm import Session
 
 from .schema_db import SessionLocal, Booking, Facility, Member
@@ -11,6 +12,15 @@ app = FastAPI()
 
 
 def get_db():
+    # with psycopg2.connect(
+    #     user='test',
+    #     password='pheiph0',
+    #     host='postgres.lab.test',
+    #     port=6432,
+    #     database='start_ml'
+    # ) as conn:
+    #     return conn
+
     with SessionLocal() as db:
         return db
 
