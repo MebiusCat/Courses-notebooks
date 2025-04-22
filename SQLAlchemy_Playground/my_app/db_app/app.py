@@ -1,5 +1,6 @@
 import os
 import psycopg2
+import yaml
 
 from dotenv import load_dotenv
 from typing import List
@@ -7,6 +8,7 @@ import uvicorn
 
 from fastapi import Depends, FastAPI
 from psycopg2.extras import RealDictCursor
+from psycopg2.extensions import connection, cursor
 from sqlalchemy.orm import Session
 
 from .schema_db import SessionLocal, Booking, Facility, Member
@@ -16,7 +18,12 @@ from .models import BookingGet, UserGet, FacilityGet
 app = FastAPI()
 
 
-def get_db_postgresql():
+def config():
+    with open("params.yaml") as f:
+        return yaml.safe_load(f)
+
+
+def get_db_postgresql() -> cursor:
     with psycopg2.connect(
         user=os.environ['POSTGRES_USER'],
         password=os.environ['POSTGRES_PASSWORD'],
@@ -53,15 +60,16 @@ def show_bookings(limit: int = 10, db: Session = Depends(get_db)):
 
 
 @app.get('/user')
-def get_user(limit, db=Depends(get_db_postgresql())):
+def get_user(limit, db: connection = Depends(get_db_postgresql), config: dict = Depends(config)):
     with db.cursor(cursor_factory=RealDictCursor) as cursor:
         cursor.execute(
             """
             SELECT *
             FROM "user"
             LIMIT %(limit_user)s
+            WHERE date >= %(start_date)s
             """,
-            {'limit_user': limit})
+            {'limit_user': limit, "start_date": config["feed_start_date"]})
         return cursor.fetchall()
 
 
