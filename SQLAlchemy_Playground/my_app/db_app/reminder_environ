@@ -9,3 +9,9 @@ load_dotenv(), а перед этим не забываем
 
 import os
 from dotenv import load_dotenv
+
+А можно ещё вот так поместить:
+with open("nebius_api_key", "r") as file:
+    nebius_api_key = file.read().strip()
+
+os.environ["NEBIUS_API_KEY"] = nebius_api_key
