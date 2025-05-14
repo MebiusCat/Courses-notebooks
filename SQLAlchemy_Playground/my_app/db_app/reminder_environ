@@ -1,0 +1,11 @@
+import os
+print(os.environ['MONGODB_PORT'])
+
+в файле .env лежат данные в формате 
+MONGODB_PORT="192.168.1.1"
+
+в main пишем 
+load_dotenv(), а перед этим не забываем
+
+import os
+from dotenv import load_dotenv
